@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MultiMachine Control</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <div class="header-logo">
+          <i data-lucide="monitor-check" class="header-logo-icon"></i>
+        </div>
+        <div>
+          <h1 class="header-title">MultiMachine Control</h1>
+          <p class="header-subtitle">Panel de control remoto para VMs Red Hat</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary" onclick="loadPCs()">
+          <i data-lucide="refresh-cw"></i> Refrescar
+        </button>
+        <button class="btn-primary" onclick="reconnectAll()">
+          <i data-lucide="wifi"></i> Reconectar Todo
+        </button>
+        <button class="btn-success" onclick="openAddPCModal()">
+          <i data-lucide="plus-circle"></i> Agregar PC
+        </button>
+        <button class="btn-info" onclick="sendToAll({command:'INFO'})">
+          <i data-lucide="info"></i> Info Global
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Stats bar -->
+  <section class="stats-bar">
+    <div class="glass-card stat-card">
+      <div class="stat-value" id="stat-total">0</div>
+      <div class="stat-label"><i data-lucide="server" class="stat-icon"></i> Total PCs</div>
+    </div>
+    <div class="glass-card stat-card">
+      <div class="stat-value stat-online" id="stat-online">0</div>
+      <div class="stat-label"><i data-lucide="wifi" class="stat-icon"></i> Online</div>
+    </div>
+    <div class="glass-card stat-card">
+      <div class="stat-value stat-offline" id="stat-offline">0</div>
+      <div class="stat-label"><i data-lucide="wifi-off" class="stat-icon"></i> Offline</div>
+    </div>
+    <div class="glass-card stat-card">
+      <div class="stat-value stat-time" id="stat-time">--:--:--</div>
+      <div class="stat-label"><i data-lucide="clock" class="stat-icon"></i> Última Actualización</div>
+    </div>
+  </section>
+
+  <!-- PC Cards -->
+  <main class="main-content">
+    <div class="masonry-grid" id="pc-container">
+      <div class="loading-placeholder">
+        <i data-lucide="loader-2" class="loading-icon spin"></i>
+        <p>Cargando equipos...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Result Modal -->
+  <div class="modal-overlay" id="modal-result" onclick="closeModalOutside(event,'modal-result')">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title" id="result-title">Resultado</h2>
+        <button class="btn-icon" onclick="closeModal('modal-result')">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <pre class="result-pre" id="result-body"></pre>
+    </div>
+  </div>
+
+  <!-- Add PC Modal -->
+  <div class="modal-overlay" id="modal-add-pc" onclick="closeModalOutside(event,'modal-add-pc')">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">Agregar Nuevo PC</h2>
+        <button class="btn-icon" onclick="closeModal('modal-add-pc')">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form onsubmit="addPC(event)" class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input class="input-field" id="add-name" type="text" placeholder="VM-RedHat-3" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dirección IP</label>
+          <input class="input-field" id="add-ip" type="text" placeholder="192.168.1.102" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Puerto</label>
+          <input class="input-field" id="add-port" type="number" value="6666" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contraseña</label>
+          <input class="input-field" id="add-password" type="password" placeholder="(vacío = sin auth)" />
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('modal-add-pc')">Cancelar</button>
+          <button type="submit" class="btn-success"><i data-lucide="plus"></i> Agregar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom Command Modal -->
+  <div class="modal-overlay" id="modal-custom" onclick="closeModalOutside(event,'modal-custom')">
+    <div class="glass-card modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title" id="custom-title">Comando</h2>
+        <button class="btn-icon" onclick="closeModal('modal-custom')">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div id="custom-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

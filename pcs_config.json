@@ -1,0 +1,6 @@
+{
+    "pcs": [
+        {"name": "VM-RedHat-1", "ip": "192.168.1.100", "port": 6666, "password": ""},
+        {"name": "VM-RedHat-2", "ip": "192.168.1.101", "port": 6666, "password": ""}
+    ]
+}
