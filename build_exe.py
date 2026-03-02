@@ -65,6 +65,15 @@ def organise_release():
     if os.path.exists(config_src):
         shutil.copy2(config_src, CONTROLLER_DIR)
 
+    # Copy deploy scripts
+    deploy_src = os.path.join(ROOT, "deploy")
+    deploy_dst = os.path.join(RELEASE_DIR, "deploy")
+    if os.path.exists(deploy_src):
+        if os.path.exists(deploy_dst):
+            shutil.rmtree(deploy_dst)
+        shutil.copytree(deploy_src, deploy_dst)
+        print(f"  deploy/ copied to: {deploy_dst}")
+
     # Write README
     readme_path = os.path.join(RELEASE_DIR, "README.txt")
     with open(readme_path, "w", encoding="utf-8") as fh:
@@ -105,6 +114,32 @@ NOTAS DE RED
 -------------
 - Use modo Bridge en VirtualBox/VMware, NO NAT.
 - El controlador debe poder alcanzar la IP de cada VM directamente.
+
+CONFIGURACIÓN CON VMs EN MODO NAT (TÚNEL SSH)
+----------------------------------------------
+Si las VMs corren en modo NAT dentro de un host intermedio (SteamOS, otra
+PC Linux, etc.), use los scripts de la carpeta deploy/ incluida en este release:
+
+  Arquitectura:
+    Windows (PC1) → socat en PC2 (:SOCAT_PORT) → túnel SSH reverse → VM (:AGENT_PORT)
+
+  Paso 1 — En el host intermedio (PC2):
+    chmod +x deploy/setup_socat.sh
+    ./deploy/setup_socat.sh [SOCAT_PORT] [TUNNEL_PORT]
+    Ejemplo: ./deploy/setup_socat.sh 6667 6666
+
+  Paso 2 — En la VM:
+    chmod +x deploy/setup_tunnel.sh
+    ./deploy/setup_tunnel.sh REMOTE_USER REMOTE_HOST [AGENT_PORT] [TUNNEL_PORT]
+    Ejemplo: ./deploy/setup_tunnel.sh deck 192.168.1.83 6666 6666
+
+  Paso 3 — En pcs_config.json apunte a IP_PC2:SOCAT_PORT:
+    {"name": "VM-RedHat-1", "ip": "192.168.1.83", "port": 6667, "password": ""}
+
+  Verificar desde Windows:
+    Test-NetConnection -ComputerName 192.168.1.83 -Port 6667
+
+  Consulte el README.md del proyecto para más detalles.
 """
 
 
